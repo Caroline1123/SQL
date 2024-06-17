@@ -21,7 +21,7 @@ try {
 </head>
 
 <body>
-    <a href="create.php">Create Walk</a>
+    <a href="create.php">Create walk</a>
 
     <h1>Liste des randonnées</h1>
     <table>
