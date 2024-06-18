@@ -1,0 +1,15 @@
+label, select, input{
+    width: 150px;
+    display: inline-block;
+    margin: 5px 0;
+  }
+
+  table {
+    border: 1px solid grey;
+    border-radius: 10px;
+    padding: 4px;
+  }
+
+  td, th {
+    padding: 2px 20px;    
+  }
