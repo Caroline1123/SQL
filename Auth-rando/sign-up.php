@@ -1,28 +1,47 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
     if (isset($_POST["username"]) && isset($_POST["password"]) && isset($_POST["password-confirm"])) {
+        $username = trim($_POST["username"]);
         $password = $_POST["password"];
-        $username = $_POST["username"];
         $password_confirm = $_POST["password-confirm"];
         // CHECK IF PW AND PW confirm match
         if ($password !== $password_confirm) {
             $message = "Password and password confirmation do not match!";
         }
         // CHECK if username already exists within DB return error (unique usernames)
-        $pdo = new PDO('mysql:host=localhost;dbname=hiking;charset=utf8', 'root', '');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $stmt->bindParam(':username', $username);
-        $stmt->execute();
-        $username = $stmt->fetch(PDO::FETCH_ASSOC);
-        $message = "Username already in use";
+        else {
+            try {
+                $pdo = new PDO('mysql:host=localhost;dbname=hiking;charset=utf8', 'root', '');
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $stmt = $pdo->prepare('SELECT username FROM Users WHERE username=:username');
+                $stmt->bindParam(':username', $username);
+                $stmt->execute();
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($user) {
+                    $message = "Username already in use";
+                } else {
+                    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                    $stmt = $pdo->prepare('INSERT INTO Users (username, password) VALUES
+                    (:username, :password)
+                    ');
+                    $stmt->bindParam(':username', $username);
+                    $stmt->bindParam(':password', $hashed_password);
+                    $stmt->execute();
+                    session_start();
+                    $_SESSION["username"] = $username;
+                    header("location: read.php");
+                }
+            } catch (PDOException $e) {
+                // Handle database errors
+                $message = "Database error: " . $e->getMessage();
+            }
+        }
     } else {
         $message = "Please fill out all fields";
     }
 }
 
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">

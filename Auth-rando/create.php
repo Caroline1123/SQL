@@ -1,4 +1,10 @@
 <?php
+
+session_start();
+if (!isset($_SESSION['username'])) {
+	header('Location:login.php');
+}
+
 try {
 	$pdo = new PDO('mysql:host=localhost;dbname=hiking;charset=utf8', 'root', '');
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

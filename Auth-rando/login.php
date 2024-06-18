@@ -8,20 +8,18 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         try {
             $pdo = new PDO('mysql:host=localhost;dbname=hiking;charset=utf8', 'root', '');
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $stmt = $pdo->prepare('SELECT * FROM Users WHERE username=:username && password=:password;');
+            $stmt = $pdo->prepare('SELECT * FROM Users WHERE username=:username;');
             $stmt->bindParam(':username', $username);
-            $stmt->bindParam(':password', $password);
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            echo $user;
-            if (!$user) {
-                echo "<h6>Invalid credentials</h6>";
-            } else {
+            if ($user && password_verify($password, $user['password'])) {
                 // Initiates session and redirects to homepage
                 session_start();
                 $_SESSION["username"] = $user["username"];
                 header("Location: read.php");
                 exit();
+            } else {
+                echo "<h6>Invalid credentials</h6>";
             }
         } catch (PDOException $e) {
             echo '' . $e->getMessage();
